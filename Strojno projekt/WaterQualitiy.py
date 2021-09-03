@@ -1,24 +1,24 @@
 import numpy as np
 import pandas as pd
 
-df = pd.read_csv("water_potability.csv")
+df = pd.read_csv("C:\\Users\Ivan\Desktop\RUSU\Strojno projekt\water_potability.csv")
 
 #first 5 rows of data
 print(df.head())
 
-#shape of the data 
+#shape of the data
 print(df.shape)
 
 #Check for missing values
 print(df.isnull().sum())
 
 #Dropping missing values
-#because water quality is a sensitive data, we cannot tamper with the data by imputing mean, median, mode of the data
+#because water quality is a sensitive data, we cannot tamper with the data by imputing mean, median, mode
 df= df.dropna()
 
 print(df.Potability.value_counts())
 
-#Graphs
+#Plots
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -32,7 +32,7 @@ from sklearn.utils import resample
 plt.figure(num=1)
 plt.show()
 
-#minority class that  is 1, we need to upsample/increase that class so that there is no bias towards majority class
+#minority class that  is 1, we need to upsample/increase that class so that there is no bias
 #n_samples = 1998 means we want 1998 sample of class 1, since there are 1998 samples of class 0
 df_minority_upsampled = resample(one, replace = True, n_samples = 1200) 
 #concatenate
@@ -47,7 +47,7 @@ df.Potability.value_counts().plot(kind ='pie')
 plt.show()
 
 
-#understanding correlation, shown with scatter plots
+#understanding correlation
 plt.figure(num=3,figsize = (12,7))
 sns.heatmap(df.corr(), annot = True)
 plt.show()
@@ -83,8 +83,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import (GridSearchCV, train_test_split)
 from sklearn.neighbors import KNeighborsClassifier
 
-
-#spliting data to train and test sets
 X_train, X_test, y_train, y_test = train_test_split(X,y, test_size = 0.1)
 
 
@@ -95,8 +93,8 @@ knn = KNeighborsClassifier()
 rf = RandomForestClassifier()
 
 
-#parameters of knn
-para_knn = {'n_neighbors':np.arange(1, 50)}  
+
+para_knn = {'n_neighbors':np.arange(1, 50)}  #parameters of knn
 grid_knn = GridSearchCV(knn, param_grid=para_knn, cv=5) #search knn for 5 fold cross validation
  
 
@@ -113,7 +111,6 @@ print("Best parameters for Random Forest:", grid_rf.best_params_)
 
 lr = LogisticRegression(random_state=42,max_iter=500,solver='lbfgs') #solver lbfgs
 
-# models with best params
 knn = KNeighborsClassifier(n_neighbors=1)
 rf = RandomForestClassifier(n_estimators=100, min_samples_leaf=2, random_state=42)
 
@@ -124,7 +121,7 @@ from sklearn.metrics import accuracy_score
 
 for classifier_name, classifier in classifiers:
  
-    # Fit classifierf to the training set
+    # Fit clf to the training set
     classifier.fit(X_train, y_train)    
    
     # Predict y_pred
@@ -132,12 +129,30 @@ for classifier_name, classifier in classifiers:
     accuracy = accuracy_score(y_test,y_pred)
     
 
+   
     # Evaluate clf's accuracy on the test set
     print('{:s} : {:.2f}'.format(classifier_name, accuracy))
 
 
 from sklearn.metrics import classification_report
 
-#report results for each class, model random forest(best preformed)
 y_pred_rf= rf.predict(X_test)
 print(classification_report(y_test, y_pred_rf))
+
+
+### test data Zagreb
+## https://www.vio.hr/o-nama/vodoopskrba/kvaliteta-vode-za-ljudsku-potrosnju/tablica-kvalitete-vode-grad-zagreb/1852
+data_test = pd.read_csv("C:\\Users\Ivan\Desktop\RUSU\Strojno projekt\water_ZG.csv")
+
+print(data_test.head())
+
+y_pred_test_ZG = rf.predict(data_test)
+
+print(y_pred_test_ZG)
+
+print("Kvaliteta vode Zagreb \n ")
+print("Vodocrpilište: Mala mlaka:"+str(y_pred_test_ZG[0]) )
+print("Vodocrpilište: Petruševac:" +str(y_pred_test_ZG[1]))
+print("Vodocrpilište: Sašnak:"+str(y_pred_test_ZG[2]) )
+print("Vodocrpilište: Zapruđe:" +str(y_pred_test_ZG[3]))
+print("Vodocrpilište: Stremec:" +str(y_pred_test_ZG[4]))
